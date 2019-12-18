@@ -4,7 +4,7 @@
     "description": "Book API HAHAHA",
     "title": "Example of Swagger UI Generated from JSON"
   },
-  "host": "localhost:8080",
+  "host": ["localhost:8080", "localhost:8082"],
   "basePath": "/",
   "tags": [
     {
