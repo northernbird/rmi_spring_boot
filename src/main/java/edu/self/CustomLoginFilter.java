@@ -34,27 +34,26 @@ public class CustomLoginFilter extends AbstractAuthenticationProcessingFilter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
         String token = request.getHeader("SECURITY_TOKEN_KEY");
-        if (token != null) {
-            Authentication authResult;
-            try {
-                authResult = attemptAuthentication(request, response);
-                if (authResult == null) {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    return;
-                }
-            } catch (AuthenticationException failed) {
+        Authentication authResult;
+        try {
+            authResult = attemptAuthentication(request, response);
+            if (authResult == null) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("INVALID BODY");
                 return;
             }
+        } catch (AuthenticationException failed) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
 
-            try {
-                SecurityContextHolder.getContext().setAuthentication(authResult);
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-                if (e.getCause() instanceof AccessDeniedException) {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    return;
-                }
+        try {
+            SecurityContextHolder.getContext().setAuthentication(authResult);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            if (e.getCause() instanceof AccessDeniedException) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
             }
         }
         chain.doFilter(request, response);// return to others spring security filters
